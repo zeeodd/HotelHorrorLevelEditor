@@ -23,8 +23,9 @@
     </div>
     <div id="menu-create">
       <b>NAME:</b> <input id="name" type="text" name="name">
-      <b>HEIGHT:</b> <input id="height" type="number" name="height" value="5">
-      <b>WIDTH:</b> <input id="width" type="number" name="width" value="5">
+      <b>HEIGHT:</b> <input id="height" type="number" name="height" value="8">
+      <b>WIDTH:</b> <input id="width" type="number" name="width" value="8">
+      <b>VERSION:</b> <input id="version" type="number" name="version" min="1.0" max="1.0" value="1.0" style="width: 50px">
       <input id="generate" type="button" name="generate" value="GENERATE">
     </div>
   </div>
@@ -32,13 +33,13 @@
     <svg id="svg"></svg>
     <div id="svg-col">
       <div class="elm-row">
-        <b>Bed</b> <input type="checkbox"> <input id="bedOrientation" style="width: 50px" type="number" name="bedOrientation" value="0">
+        <b>Bed</b> <input id="bedBool" type="checkbox"> <input id="bedOrientation" style="width: 50px" type="number" name="bedOrientation" value="0">
       </div>
       <div class="elm-row">
-        <b>Closet</b> <input type="checkbox"> <input id="closetOrientation" style="width: 50px" type="number" name="closetOrientation" value="0">
+        <b>Closet</b> <input id="closetBool" type="checkbox"> <input id="closetOrientation" style="width: 50px" type="number" name="closetOrientation" value="0">
       </div>
       <div class="elm-row">
-        <b>Dresser</b> <input type="checkbox"> <input id="dresserOrientation" style="width: 50px" type="number" name="dresserOrientation" value="0">
+        <b>Dresser</b> <input id="dresserBool" type="checkbox"> <input id="dresserOrientation" style="width: 50px" type="number" name="dresserOrientation" value="0">
       </div>
     </div>
 
@@ -58,6 +59,7 @@
     var svgShape = d3.select("#svg-col");
     var height = d3.select("#height");
     var width = d3.select("#width");
+    var version = d3.select("#version");
     var lvlName = d3.select("#name");
     var svgDiv = d3.select("#svg-div");
     var json;
@@ -99,7 +101,6 @@
 
     // UPLOAD A FILE
     document.getElementById('import').onclick = function() {
-
       var files = document.getElementById('selectFiles').files;
       if (files.length <= 0) {
         return false;
@@ -171,6 +172,7 @@
 
       var h = height._groups[0][0].value;
       var w = width._groups[0][0].value;
+      var v = version._groups[0][0].value;
 
       var svgH = h * tileSize;
       var svgW = w * tileSize;
@@ -216,6 +218,10 @@
       var closetOrientation = d3.select("#closetOrientation")._groups[0][0].value;
       var dresserOrientation = d3.select("#dresserOrientation")._groups[0][0].value;
 
+      var bedBool = d3.select("#bedBool")._groups[0][0].checked;
+      var closetBool = d3.select("#closetBool")._groups[0][0].checked;
+      var dresserBool = d3.select("#dresserBool")._groups[0][0].checked;
+
       if (svg.style("display") ==  "none") {
 
         alert("Make A Level First!");
@@ -226,42 +232,64 @@
 
       } else {
 
-        var gameBoard = [];
         var tiles = svg._groups[0][0].childNodes;
         var h = height._groups[0][0].value;
         var w = width._groups[0][0].value;
+        var v = version._groups[0][0].value;
 
         json = {
-          "id": "", // Not blank, added later
-          "height": Number(h),
-          "width": Number(w),
-          "Bed": Number(bedOrientation),
-          "Closet": Number(closetOrientation),
-          "Dresser": Number(dresserOrientation),
-          "gameBoard": []
+          "version": v,
+          "name": lvlName._groups[0][0].value,
+          "tiles": {
+            "map" : [],
+            "width": Number(w),
+            "height": Number(h)
+          },
+          "furniture": {
+
+          }
+        }
+
+        if (bedBool) {
+          bed = {
+            "rotation": Number(bedOrientation)
+          }
+          json.furniture["B"] = bed;
+        }
+
+        if(dresserBool) {
+          dresser = {
+            "rotation": Number(dresserOrientation)
+          }
+          json.furniture["D"] = dresser;
+        }
+
+        if(closetBool) {
+          closet = {
+            "rotation": Number(closetOrientation)
+          }
+          json.furniture["C"] = closet;
         }
 
         for (var i = 0; i < tiles.length; i++) {
           var elm;
           if (tiles[i].getAttribute("fill") == "#59AEEB") {
-            elm = 0; // TILE
+            elm = "o"; // TILE
           } else if (tiles[i].getAttribute("fill") == "#000000") {
-            elm = 1; // EMPTY
+            elm = "#"; // EMPTY
           } else if (tiles[i].getAttribute("fill") == "#E4EEF5") {
-            elm = 2; // PLAYER SPAWN
+            elm = "p"; // PLAYER SPAWN
           } else if (tiles[i].getAttribute("fill") == "#A9F5C5") {
-            elm = 3; // INVADER SPAWN
+            elm = "x"; // INVADER SPAWN
           } else if (tiles[i].getAttribute("fill") == "#CB79F7") {
-            elm = 4; // BED
+            elm = "B"; // BED
           } else if (tiles[i].getAttribute("fill") == "#ECA025") {
-            elm = 5; // CLOSET
+            elm = "C"; // CLOSET
           } else if (tiles[i].getAttribute("fill") == "#F06086") {
-            elm = 6; // DRESSER
+            elm = "D"; // DRESSER
           }
-          json.gameBoard.push(elm);
+          json.tiles.map.push(elm);
         }
-
-        json.id = hashLevel(w, h, json.gameBoard); // ID added here
 
         filename = lvlName._groups[0][0].value + ".json";
 
@@ -277,25 +305,6 @@
 
       }
     });
-    // ************************
-
-    // *** HELPER HASH FUNCTION **
-    function hashLevel(w, h, gameboard) {
-      var hash = 0;
-      var c = 0;
-
-      for (var i = 0; i < gameboard.length; i++) {
-        hash += Math.pow(c, gameboard[i]);
-        c += 1;
-      }
-
-      hash += w * 12735
-      hash += h * 23213
-
-      return hash;
-    }
-    // ***************************
-
   </script>
 
 </body>
