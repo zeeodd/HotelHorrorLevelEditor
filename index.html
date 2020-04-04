@@ -1,0 +1,302 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Hotel Horror Level Editor</title>
+    <meta charset="UTF-8">
+    <script src="scripts/d3.v4.min.js"></script>
+    <script src="scripts/d3-context-menu.js"></script>
+    <link rel='stylesheet' type='text/css' href='styles/style.css'>
+</head>
+
+<body>
+  <!-- HTML -->
+  <h1 id="title">Hotel Horror Level Editor</h1>
+  <div id="menu">
+    <div id="menu-upload">
+      <div class="upload-div">
+        <input type="file" id="selectFiles" accept=".json" value="Import" />
+      </div>
+      <div class="upload-div">
+        <button id="import">Import</button>
+      </div>
+    </div>
+    <div id="menu-create">
+      <b>NAME:</b> <input id="name" type="text" name="name">
+      <b>HEIGHT:</b> <input id="height" type="number" name="height" value="5">
+      <b>WIDTH:</b> <input id="width" type="number" name="width" value="5">
+      <input id="generate" type="button" name="generate" value="GENERATE">
+    </div>
+  </div>
+  <div id="svg-flex">
+    <svg id="svg"></svg>
+    <div id="svg-col">
+      <div class="elm-row">
+        <b>Bed</b> <input type="checkbox"> <input id="bedOrientation" style="width: 50px" type="number" name="bedOrientation" value="0">
+      </div>
+      <div class="elm-row">
+        <b>Closet</b> <input type="checkbox"> <input id="closetOrientation" style="width: 50px" type="number" name="closetOrientation" value="0">
+      </div>
+      <div class="elm-row">
+        <b>Dresser</b> <input type="checkbox"> <input id="dresserOrientation" style="width: 50px" type="number" name="dresserOrientation" value="0">
+      </div>
+    </div>
+
+  </div>
+
+  <div>
+    <input id="export" type="button" name="export" value="EXPORT">
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    // GLOBAL VARIABLES
+    var generateBtn = d3.select("#generate");
+    var uploadBtn = d3.select("#upload");
+    var exportBtn = d3.select("#export");
+    var svg = d3.select("#svg");
+    var svgShape = d3.select("#svg-col");
+    var height = d3.select("#height");
+    var width = d3.select("#width");
+    var lvlName = d3.select("#name");
+    var svgDiv = d3.select("#svg-div");
+    var json;
+    var tileSize = 50;
+    var shapeSize = 25;
+    var tile = "#59AEEB";
+
+    // MENU
+    var menu = [
+			{
+				title: "Tile",
+				action: function() {}
+			},
+			{
+				title: "Empty",
+				action: function() {}
+			},
+      {
+				title: "Player Spawn",
+				action: function() {}
+			},
+      {
+				title: "Invader Spawn",
+				action: function() {}
+			},
+      {
+				title: "Bed",
+				action: function() {}
+			},
+      {
+				title: "Closet",
+				action: function() {}
+			},
+      {
+				title: "Dresser",
+				action: function() {}
+			}
+		]
+
+    // UPLOAD A FILE
+    document.getElementById('import').onclick = function() {
+
+      var files = document.getElementById('selectFiles').files;
+      if (files.length <= 0) {
+        return false;
+      }
+
+      var fr = new FileReader();
+
+      fr.onload = function(e) {
+        var jsonData = JSON.parse(e.target.result);
+        console.log(jsonData);
+
+        svg.style("height", jsonData.height*tileSize + "px");
+        svg.style("width", jsonData.width*tileSize + "px");
+        svg.style("display", "inline-block");
+        svgShape.style("display", "flex");
+
+        var arrayIndex = 0;
+
+        for (var i = 0; i < jsonData.width; i++) {
+          for (var j = 0; j < jsonData.height; j++) {
+
+            var color;
+
+            if (jsonData.gameBoard[arrayIndex] == 0) {
+              color = "#795C5C" // ROCK
+            } else if (jsonData.gameBoard[arrayIndex] == 1) {
+              color = "#000000" // EMPTY SPACE
+            } else if (jsonData.gameBoard[arrayIndex] == 2) {
+              color = "#2B74DE" // GEM
+            } else if (jsonData.gameBoard[arrayIndex] == 3) {
+              color = "#D858D2" // DEATH BLOCK
+            } else if (jsonData.gameBoard[arrayIndex] == 4) {
+              color = "#ECA025" // SINKHOLE
+            }
+
+            svg.append("rect")
+            .attr("x", i*tileSize)
+            .attr("y", j*tileSize)
+            .attr("height", tileSize)
+            .attr("width", tileSize)
+            .attr("fill", color)
+            .attr("stroke", "white")
+            .attr("stroke-width", 1)
+            .on('click', d3.contextMenu(menu))
+
+            arrayIndex++;
+
+          }
+        }
+
+        console.log(arrayIndex);
+
+        lvlName._groups[0][0].value = jsonData.id;
+        height._groups[0][0].value = jsonData.height;
+        width._groups[0][0].value = jsonData.width;
+        d3.select("#bedOrientation")._groups[0][0].value = jsonData["B1x3"];
+        d3.select("#closetOrientation")._groups[0][0].value = jsonData["B1x5"];
+        d3.select("#dresserOrientation")._groups[0][0].value = jsonData["B1xINF"];
+      }
+
+      fr.readAsText(files.item(0));
+
+    };
+
+    // GENERATE THE LEVEL
+    generateBtn.on("click", function() {
+
+      d3.selectAll("svg > *").remove();
+
+      var h = height._groups[0][0].value;
+      var w = width._groups[0][0].value;
+
+      var svgH = h * tileSize;
+      var svgW = w * tileSize;
+
+      if (h < 1 || w < 1) {
+
+        alert("Height & Width Can't Be Zero!");
+
+      } else {
+
+        svg.style("height", svgH + "px");
+        svg.style("width", svgW + "px");
+        svg.style("display", "inline-block");
+        svgShape.style("display", "flex");
+
+        // TILE CREATION
+        for ( var i = 0; i < w; i++) {
+          for (var j = 0; j < h; j++) {
+            svg.append("rect")
+            .attr("x", i*tileSize)
+            .attr("y", j*tileSize)
+            .attr("height", tileSize)
+            .attr("width", tileSize)
+            .attr("fill", tile)
+            .attr("stroke", "white")
+            .attr("stroke-width", 1)
+            .on('click', d3.contextMenu(menu))
+          }
+        }
+
+      }
+
+      d3.select("#bedOrientation")._groups[0][0].value = 0;
+      d3.select("#closetOrientation")._groups[0][0].value = 0;
+      d3.select("#dresserOrientation")._groups[0][0].value = 0;
+
+    });
+
+    // *** EXPORT THE LEVEL ***
+    exportBtn.on("click", function() {
+
+      var bedOrientation = d3.select("#bedOrientation")._groups[0][0].value;
+      var closetOrientation = d3.select("#closetOrientation")._groups[0][0].value;
+      var dresserOrientation = d3.select("#dresserOrientation")._groups[0][0].value;
+
+      if (svg.style("display") ==  "none") {
+
+        alert("Make A Level First!");
+
+      } else if (lvlName._groups[0][0].value == "") {
+
+        alert("Name Your Level First!");
+
+      } else {
+
+        var gameBoard = [];
+        var tiles = svg._groups[0][0].childNodes;
+        var h = height._groups[0][0].value;
+        var w = width._groups[0][0].value;
+
+        json = {
+          "id": "", // Not blank, added later
+          "height": Number(h),
+          "width": Number(w),
+          "Bed": Number(bedOrientation),
+          "Closet": Number(closetOrientation),
+          "Dresser": Number(dresserOrientation),
+          "gameBoard": []
+        }
+
+        for (var i = 0; i < tiles.length; i++) {
+          var elm;
+          if (tiles[i].getAttribute("fill") == "#59AEEB") {
+            elm = 0; // TILE
+          } else if (tiles[i].getAttribute("fill") == "#000000") {
+            elm = 1; // EMPTY
+          } else if (tiles[i].getAttribute("fill") == "#E4EEF5") {
+            elm = 2; // PLAYER SPAWN
+          } else if (tiles[i].getAttribute("fill") == "#A9F5C5") {
+            elm = 3; // INVADER SPAWN
+          } else if (tiles[i].getAttribute("fill") == "#CB79F7") {
+            elm = 4; // BED
+          } else if (tiles[i].getAttribute("fill") == "#ECA025") {
+            elm = 5; // CLOSET
+          } else if (tiles[i].getAttribute("fill") == "#F06086") {
+            elm = 6; // DRESSER
+          }
+          json.gameBoard.push(elm);
+        }
+
+        json.id = hashLevel(w, h, json.gameBoard); // ID added here
+
+        filename = lvlName._groups[0][0].value + ".json";
+
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(json)));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+
+        console.log("Exported!", json);
+
+      }
+    });
+    // ************************
+
+    // *** HELPER HASH FUNCTION **
+    function hashLevel(w, h, gameboard) {
+      var hash = 0;
+      var c = 0;
+
+      for (var i = 0; i < gameboard.length; i++) {
+        hash += Math.pow(c, gameboard[i]);
+        c += 1;
+      }
+
+      hash += w * 12735
+      hash += h * 23213
+
+      return hash;
+    }
+    // ***************************
+
+  </script>
+
+</body>
+</html>

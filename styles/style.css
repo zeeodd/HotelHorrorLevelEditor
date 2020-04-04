@@ -1,0 +1,127 @@
+/***** COLORS ******/
+/*
+
+#795C5C = ROCKS
+#000000 = EMPTY SPACE
+#2B74DE = BLUE GEM
+#ECA025 = GREEN GEM
+
+*/
+
+/***** GENERAL STYLING ******/
+body {
+  text-align: center;
+  font-family: monospace;
+}
+
+svg {
+  border: solid #ccc 1px;
+  margin: 10px;
+}
+
+input {
+  width: 30px;
+  font-size: 15px;
+  font-family: monospace;
+}
+
+/***** ID STYLING ******/
+#footer {
+  position: fixed;
+  bottom: 0;
+  width: auto;
+  padding-bottom: 20px;
+  text-align: left;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: normal;
+}
+
+#generate,
+#export {
+  width: auto;
+  margin: 10px;
+  font-family: monospace;
+}
+
+#name {
+  width: 150px;
+}
+
+#svg-flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+#menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#menu-upload {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+#selectFiles {
+  width: auto;
+}
+
+.upload-div {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+#svg-col {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.elm-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 5px;
+}
+
+#svg {
+  display: none;
+}
+
+#svg:hover {
+  cursor: pointer;
+}
+
+/***** CLASS STYLING ******/
+.d3-context-menu {
+  position: absolute;
+  display: none;
+  background-color: #f2f2f2;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+  min-width: 150px;
+  border: 1px solid #d4d4d4;
+  z-index: 1200;
+}
+
+.d3-context-menu ul {
+  list-style-type: none;
+  margin: 4px 0px;
+  padding: 0px;
+  cursor: default;
+}
+
+.d3-context-menu ul li {
+  padding: 4px 16px;
+}
+
+.d3-context-menu ul li:hover {
+  background-color: #4677f8;
+  color: #fefefe;
+}
