@@ -218,20 +218,40 @@
       var closetOrientation = d3.select("#closetOrientation")._groups[0][0].value;
       var dresserOrientation = d3.select("#dresserOrientation")._groups[0][0].value;
 
+      var tiles = svg._groups[0][0].childNodes;
+      var h = height._groups[0][0].value;
+      var w = width._groups[0][0].value;
+      var v = version._groups[0][0].value;
+
       var bedBool = d3.select("#bedBool")._groups[0][0].checked;
       var closetBool = d3.select("#closetBool")._groups[0][0].checked;
       var dresserBool = d3.select("#dresserBool")._groups[0][0].checked;
 
-      if (svg.style("display") ==  "none") {
-        alert("Make A Level First!");
-      } else if (lvlName._groups[0][0].value == "") {
-        alert("Name Your Level First!");
-      } else {
+      var internalBedBool = false;
+      var internalClosetBool = false;
+      var internalDresserBool = false;
 
-        var tiles = svg._groups[0][0].childNodes;
-        var h = height._groups[0][0].value;
-        var w = width._groups[0][0].value;
-        var v = version._groups[0][0].value;
+      for (var i = 0; i < tiles.length; i++) {
+        if (tiles[i].getAttribute("fill") == "#CB79F7") {
+          internalBedBool = true; // BED
+        } else if (tiles[i].getAttribute("fill") == "#ECA025") {
+          internalClosetBool = true; // CLOSET
+        } else if (tiles[i].getAttribute("fill") == "#F06086") {
+          internalDresserBool = true; // DRESSER
+        }
+      }
+
+      if (svg.style("display") ==  "none") {
+        alert("Generate a level first!");
+      } else if (lvlName._groups[0][0].value == "") {
+        alert("Don't forget to name your level!");
+      } else if (!bedBool && internalBedBool) {
+        alert("Add a bed orientation!");
+      } else if (!closetBool && internalClosetBool) {
+        alert("Add a closet orientation!");
+      } else if (!dresserBool && internalDresserBool) {
+        alert("Add a dresser orientation!");
+      } else {
 
         json = {
           "version": v,
