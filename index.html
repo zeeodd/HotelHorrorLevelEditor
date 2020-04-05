@@ -223,13 +223,9 @@
       var dresserBool = d3.select("#dresserBool")._groups[0][0].checked;
 
       if (svg.style("display") ==  "none") {
-
         alert("Make A Level First!");
-
       } else if (lvlName._groups[0][0].value == "") {
-
         alert("Name Your Level First!");
-
       } else {
 
         var tiles = svg._groups[0][0].childNodes;
@@ -245,11 +241,10 @@
             "width": Number(w),
             "height": Number(h)
           },
-          "furniture": {
-
-          }
+          "furniture": { }
         }
 
+        // Check if bed is checked
         if (bedBool) {
           bed = {
             "rotation": Number(bedOrientation)
@@ -257,6 +252,7 @@
           json.furniture["B"] = bed;
         }
 
+        // Check if dresser is checked
         if(dresserBool) {
           dresser = {
             "rotation": Number(dresserOrientation)
@@ -264,6 +260,7 @@
           json.furniture["D"] = dresser;
         }
 
+        // Check if closet is checked
         if(closetBool) {
           closet = {
             "rotation": Number(closetOrientation)
@@ -271,24 +268,36 @@
           json.furniture["C"] = closet;
         }
 
+        var rowIterator = 0;
+        var rowNumber = 0;
+        var tileListIndex = 0;
+
         for (var i = 0; i < tiles.length; i++) {
           var elm;
-          if (tiles[i].getAttribute("fill") == "#59AEEB") {
+          if (tiles[tileListIndex].getAttribute("fill") == "#59AEEB") {
             elm = "o"; // TILE
-          } else if (tiles[i].getAttribute("fill") == "#000000") {
+          } else if (tiles[tileListIndex].getAttribute("fill") == "#000000") {
             elm = "#"; // EMPTY
-          } else if (tiles[i].getAttribute("fill") == "#E4EEF5") {
+          } else if (tiles[tileListIndex].getAttribute("fill") == "#E4EEF5") {
             elm = "p"; // PLAYER SPAWN
-          } else if (tiles[i].getAttribute("fill") == "#A9F5C5") {
+          } else if (tiles[tileListIndex].getAttribute("fill") == "#A9F5C5") {
             elm = "x"; // INVADER SPAWN
-          } else if (tiles[i].getAttribute("fill") == "#CB79F7") {
+          } else if (tiles[tileListIndex].getAttribute("fill") == "#CB79F7") {
             elm = "B"; // BED
-          } else if (tiles[i].getAttribute("fill") == "#ECA025") {
+          } else if (tiles[tileListIndex].getAttribute("fill") == "#ECA025") {
             elm = "C"; // CLOSET
-          } else if (tiles[i].getAttribute("fill") == "#F06086") {
+          } else if (tiles[tileListIndex].getAttribute("fill") == "#F06086") {
             elm = "D"; // DRESSER
           }
           json.tiles.map.push(elm);
+          tileListIndex += Number(h);
+          if (rowIterator == w - 1) {
+            rowIterator = 0;
+            rowNumber++;
+            tileListIndex = rowNumber;
+          } else {
+            rowIterator++;
+          }
         }
 
         filename = lvlName._groups[0][0].value + ".json";
