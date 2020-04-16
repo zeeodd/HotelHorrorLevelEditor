@@ -25,13 +25,13 @@
       <b>NAME:</b> <input id="name" type="text" name="name">
       <b>HEIGHT:</b> <input id="height" type="number" name="height" value="8">
       <b>WIDTH:</b> <input id="width" type="number" name="width" value="8">
-      <b>VERSION:</b> <input id="version" type="number" name="version" min="1.0" max="1.0" value="1.0" style="width: 50px">
+      <b>VERSION:</b> <input id="version" type="number" name="version" min="2.0" max="2.0" value="2.0" style="width: 50px">
       <input id="generate" type="button" name="generate" value="GENERATE">
     </div>
   </div>
   <div id="svg-flex">
     <svg id="svg"></svg>
-    <div id="svg-col">
+    <div id="svg-col" class="tooltip">
       <div class="elm-row">
         <b>Bed</b> <input id="bedBool" type="checkbox"> <input id="bedOrientation" style="width: 50px" type="number" name="bedOrientation" value="0">
       </div>
@@ -41,6 +41,12 @@
       <div class="elm-row">
         <b>Dresser</b> <input id="dresserBool" type="checkbox"> <input id="dresserOrientation" style="width: 50px" type="number" name="dresserOrientation" value="0">
       </div>
+      <span class="tooltiptext">
+        0° faces ← <br/>
+        90° faces ↑ <br/>
+        180° faces → <br/>
+        270° faces ↓
+      </span>
     </div>
 
   </div>
@@ -87,6 +93,10 @@
 			},
       {
 				title: "Bed",
+				action: function() {}
+			},
+      {
+				title: "Bed Tile",
 				action: function() {}
 			},
       {
@@ -302,8 +312,10 @@
             elm = "p"; // PLAYER SPAWN
           } else if (tiles[tileListIndex].getAttribute("fill") == "#A9F5C5") {
             elm = "x"; // INVADER SPAWN
-          } else if (tiles[tileListIndex].getAttribute("fill") == "#CB79F7") {
+          } else if (tiles[tileListIndex].getAttribute("fill") == "#D32CDB") {
             elm = "B"; // BED
+          } else if (tiles[tileListIndex].getAttribute("fill") == "#CB79F7") {
+            elm = "b"; // BED TILE
           } else if (tiles[tileListIndex].getAttribute("fill") == "#ECA025") {
             elm = "C"; // CLOSET
           } else if (tiles[tileListIndex].getAttribute("fill") == "#F06086") {

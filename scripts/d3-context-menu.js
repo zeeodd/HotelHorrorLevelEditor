@@ -7,7 +7,6 @@ d3.contextMenu = function(menu, openCallback) {
 
   return function(data, index) {
     var elm = this;
-
     d3.selectAll(".d3-context-menu").html("");
     var list = d3.selectAll(".d3-context-menu").append("ul");
     list
@@ -29,10 +28,12 @@ d3.contextMenu = function(menu, openCallback) {
         } else if (i == 3) { // INVADER SPAWN
           elm.setAttribute("fill", "#A9F5C5");
         } else if (i == 4) { // BED
+          elm.setAttribute("fill", "#D32CDB");
+        } else if (i == 5) { // BED TILE
           elm.setAttribute("fill", "#CB79F7");
-        } else if (i == 5) { // CLOSET
+        } else if (i == 6) { // CLOSET
           elm.setAttribute("fill", "#ECA025");
-        } else if (i == 6) { // DRESSER
+        } else if (i == 7) { // DRESSER
           elm.setAttribute("fill", "#F06086");
         }
         d3.select(".d3-context-menu").style("display", "none");
