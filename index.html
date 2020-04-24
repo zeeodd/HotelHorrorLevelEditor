@@ -109,73 +109,7 @@
 			}
 		]
 
-    // UPLOAD A FILE
-    document.getElementById('import').onclick = function() {
-      var files = document.getElementById('selectFiles').files;
-      if (files.length <= 0) {
-        return false;
-      }
-
-      var fr = new FileReader();
-
-      fr.onload = function(e) {
-        var jsonData = JSON.parse(e.target.result);
-        console.log(jsonData);
-
-        svg.style("height", jsonData.height*tileSize + "px");
-        svg.style("width", jsonData.width*tileSize + "px");
-        svg.style("display", "inline-block");
-        svgShape.style("display", "flex");
-
-        var arrayIndex = 0;
-
-        for (var i = 0; i < jsonData.width; i++) {
-          for (var j = 0; j < jsonData.height; j++) {
-
-            var color;
-
-            if (jsonData.gameBoard[arrayIndex] == 0) {
-              color = "#795C5C" // ROCK
-            } else if (jsonData.gameBoard[arrayIndex] == 1) {
-              color = "#000000" // EMPTY SPACE
-            } else if (jsonData.gameBoard[arrayIndex] == 2) {
-              color = "#2B74DE" // GEM
-            } else if (jsonData.gameBoard[arrayIndex] == 3) {
-              color = "#D858D2" // DEATH BLOCK
-            } else if (jsonData.gameBoard[arrayIndex] == 4) {
-              color = "#ECA025" // SINKHOLE
-            }
-
-            svg.append("rect")
-            .attr("x", i*tileSize)
-            .attr("y", j*tileSize)
-            .attr("height", tileSize)
-            .attr("width", tileSize)
-            .attr("fill", color)
-            .attr("stroke", "white")
-            .attr("stroke-width", 1)
-            .on('click', d3.contextMenu(menu))
-
-            arrayIndex++;
-
-          }
-        }
-
-        console.log(arrayIndex);
-
-        lvlName._groups[0][0].value = jsonData.id;
-        height._groups[0][0].value = jsonData.height;
-        width._groups[0][0].value = jsonData.width;
-        d3.select("#bedOrientation")._groups[0][0].value = jsonData["B1x3"];
-        d3.select("#closetOrientation")._groups[0][0].value = jsonData["B1x5"];
-        d3.select("#dresserOrientation")._groups[0][0].value = jsonData["B1xINF"];
-      }
-
-      fr.readAsText(files.item(0));
-
-    };
-
-    // GENERATE THE LEVEL
+    // *** GENERATE THE LEVEL ***
     generateBtn.on("click", function() {
 
       d3.selectAll("svg > *").remove();
@@ -220,6 +154,102 @@
       d3.select("#dresserOrientation")._groups[0][0].value = 0;
 
     });
+    // *** END ***
+
+    // *** UPLOAD A FILE ***
+    document.getElementById('import').onclick = function() {
+      var files = document.getElementById('selectFiles').files;
+      if (files.length <= 0) {
+        return false;
+      }
+
+      var fr = new FileReader();
+
+      fr.onload = function(e) {
+        var jsonData = JSON.parse(e.target.result);
+
+        console.log(jsonData);
+
+        svg.style("height", jsonData["tiles"]["height"]*tileSize + "px");
+        svg.style("width", jsonData["tiles"]["width"]*tileSize + "px");
+        svg.style("display", "inline-block");
+        svgShape.style("display", "flex");
+
+        var rowIterator = 0;
+        var rowNumber = 0;
+        var tileListIndex = 0;
+
+        for (var i = 0; i < jsonData["tiles"]["map"].length; i++) {
+
+          var color;
+
+          if (jsonData["tiles"]["map"][tileListIndex] == "o") {
+            color = "#59AEEB" // TILE
+          }
+          else if (jsonData["tiles"]["map"][tileListIndex] == "#") {
+            color = "#000000" // EMPTY SPACE
+          }
+          else if (jsonData["tiles"]["map"][tileListIndex] == "p") {
+            color = "#E4EEF5" // PLAYER SPAWN
+          }
+          else if (jsonData["tiles"]["map"][tileListIndex] == "x") {
+            color = "#A9F5C5" // INVADER SPAWN
+          }
+          else if (jsonData["tiles"]["map"][tileListIndex] == "B") {
+            color = "#D32CDB" // BED
+          }
+          else if (jsonData["tiles"]["map"][tileListIndex] == "b") {
+            color = "#CB79F7" // BED TILE
+          }
+          else if (jsonData["tiles"]["map"][tileListIndex] == "C") {
+            color = "#ECA025" // CLOSET
+          }
+          else if (jsonData["tiles"]["map"][tileListIndex] == "D") {
+            color = "#F06086" // DRESSER
+          }
+
+          svg.append("rect")
+          .attr("x", rowNumber*tileSize)
+          .attr("y", rowIterator*tileSize)
+          .attr("height", tileSize)
+          .attr("width", tileSize)
+          .attr("fill", color)
+          .attr("stroke", "white")
+          .attr("stroke-width", 1)
+          .on('click', d3.contextMenu(menu))
+
+          tileListIndex += jsonData["tiles"]["height"];
+          if (rowIterator == jsonData["tiles"]["width"] - 1) {
+            rowIterator = 0;
+            rowNumber++;
+            tileListIndex = rowNumber;
+          } else {
+            rowIterator++;
+          }
+        }
+
+        lvlName._groups[0][0].value = jsonData["name"];
+        version._groups[0][0].value = jsonData["version"];
+        height._groups[0][0].value = jsonData["tiles"]["height"];
+        width._groups[0][0].value = jsonData["tiles"]["width"];
+        if (jsonData["furniture"]["B"] != undefined) {
+          d3.select("#bedBool")._groups[0][0].checked = true;
+          d3.select("#bedOrientation")._groups[0][0].value = jsonData["furniture"]["B"]["rotation"];
+        }
+        if (jsonData["furniture"]["C"] != undefined) {
+          d3.select("#closetBool")._groups[0][0].checked = true;
+          d3.select("#closetOrientation")._groups[0][0].value = jsonData["furniture"]["C"]["rotation"];
+        }
+        if (jsonData["furniture"]["D"] != undefined) {
+          d3.select("#dresserBool")._groups[0][0].checked = true;
+          d3.select("#dresserOrientation")._groups[0][0].value = jsonData["furniture"]["D"]["rotation"];
+        }
+      }
+
+      fr.readAsText(files.item(0));
+
+    };
+    // *** END ***
 
     // *** EXPORT THE LEVEL ***
     exportBtn.on("click", function() {
