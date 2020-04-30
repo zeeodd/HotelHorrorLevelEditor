@@ -18,14 +18,14 @@
         <input type="file" id="selectFiles" accept=".json" value="Import" />
       </div>
       <div class="upload-div">
-        <button id="import">Import</button>
+        <button id="import">IMPORT</button>
       </div>
     </div>
     <div id="menu-create">
       <b>NAME:</b> <input id="name" type="text" name="name">
       <b>HEIGHT:</b> <input id="height" type="number" name="height" value="8">
       <b>WIDTH:</b> <input id="width" type="number" name="width" value="8">
-      <b>VERSION:</b> <input id="version" type="number" name="version" min="2.0" max="2.0" value="2.0" style="width: 50px">
+      <b>VERSION:</b> <input id="version" type="number" name="version" min="3.0" max="3.0" value="3.0" style="width: 50px">
       <input id="generate" type="button" name="generate" value="GENERATE">
     </div>
   </div>
@@ -39,7 +39,13 @@
         <b>Closet</b> <input id="closetBool" type="checkbox"> <input id="closetOrientation" style="width: 50px" type="number" name="closetOrientation" value="0">
       </div>
       <div class="elm-row">
-        <b>Dresser</b> <input id="dresserBool" type="checkbox"> <input id="dresserOrientation" style="width: 50px" type="number" name="dresserOrientation" value="0">
+        <b>Sofa</b> <input id="sofaBool" type="checkbox"> <input id="sofaOrientation" style="width: 50px" type="number" name="sofaOrientation" value="0">
+      </div>
+      <div class="elm-row">
+        <b>Lamp</b> <input id="lampBool" type="checkbox"> <input id="lampOrientation" style="width: 50px" type="number" name="lampOrientation" value="0">
+      </div>
+      <div class="elm-row">
+        <b>Bookcase</b> <input id="bookcaseBool" type="checkbox"> <input id="bookcaseOrientation" style="width: 50px" type="number" name="bookcaseOrientation" value="0">
       </div>
       <span class="tooltiptext">
         0° faces ← <br/>
@@ -104,7 +110,15 @@
 				action: function() {}
 			},
       {
-				title: "Dresser",
+				title: "Sofa",
+				action: function() {}
+			},
+      {
+				title: "Lamp",
+				action: function() {}
+			},
+      {
+				title: "Bookcase",
 				action: function() {}
 			}
 		]
@@ -151,12 +165,14 @@
 
       d3.select("#bedOrientation")._groups[0][0].value = 0;
       d3.select("#closetOrientation")._groups[0][0].value = 0;
-      d3.select("#dresserOrientation")._groups[0][0].value = 0;
+      d3.select("#sofaOrientation")._groups[0][0].value = 0;
+      d3.select("#lampOrientation")._groups[0][0].value = 0;
+      d3.select("#bookcaseOrientation")._groups[0][0].value = 0;
 
     });
     // *** END ***
 
-    // *** UPLOAD A FILE ***
+    // *** UPLOAD A LEVEL ***
     document.getElementById('import').onclick = function() {
       var files = document.getElementById('selectFiles').files;
       if (files.length <= 0) {
@@ -205,7 +221,13 @@
             color = "#ECA025" // CLOSET
           }
           else if (jsonData["tiles"]["map"][tileListIndex] == "D") {
-            color = "#F06086" // DRESSER
+            color = "#F06086" // SOFA
+          }
+          else if (jsonData["tiles"]["map"][tileListIndex] == "L") {
+            color = "#6D73C9" // LAMP
+          }
+          else if (jsonData["tiles"]["map"][tileListIndex] == "K") {
+            color = "#F0F051" // BOOKCASE
           }
 
           svg.append("rect")
@@ -240,9 +262,17 @@
           d3.select("#closetBool")._groups[0][0].checked = true;
           d3.select("#closetOrientation")._groups[0][0].value = jsonData["furniture"]["C"]["rotation"];
         }
-        if (jsonData["furniture"]["D"] != undefined) {
-          d3.select("#dresserBool")._groups[0][0].checked = true;
-          d3.select("#dresserOrientation")._groups[0][0].value = jsonData["furniture"]["D"]["rotation"];
+        if (jsonData["furniture"]["S"] != undefined) {
+          d3.select("#sofaBool")._groups[0][0].checked = true;
+          d3.select("#sofaOrientation")._groups[0][0].value = jsonData["furniture"]["S"]["rotation"];
+        }
+        if (jsonData["furniture"]["L"] != undefined) {
+          d3.select("#lampBool")._groups[0][0].checked = true;
+          d3.select("#lampOrientation")._groups[0][0].value = jsonData["furniture"]["L"]["rotation"];
+        }
+        if (jsonData["furniture"]["L"] != undefined) {
+          d3.select("#bookcaseBool")._groups[0][0].checked = true;
+          d3.select("#bookcaseOrientation")._groups[0][0].value = jsonData["furniture"]["K"]["rotation"];
         }
       }
 
@@ -256,7 +286,9 @@
 
       var bedOrientation = d3.select("#bedOrientation")._groups[0][0].value;
       var closetOrientation = d3.select("#closetOrientation")._groups[0][0].value;
-      var dresserOrientation = d3.select("#dresserOrientation")._groups[0][0].value;
+      var sofaOrientation = d3.select("#sofaOrientation")._groups[0][0].value;
+      var lampOrientation = d3.select("#lampOrientation")._groups[0][0].value;
+      var bookcaseOrientation = d3.select("#bookcaseOrientation")._groups[0][0].value;
 
       var tiles = svg._groups[0][0].childNodes;
       var h = height._groups[0][0].value;
@@ -265,33 +297,56 @@
 
       var bedBool = d3.select("#bedBool")._groups[0][0].checked;
       var closetBool = d3.select("#closetBool")._groups[0][0].checked;
-      var dresserBool = d3.select("#dresserBool")._groups[0][0].checked;
+      var sofaBool = d3.select("#sofaBool")._groups[0][0].checked;
+      var lampBool = d3.select("#lampBool")._groups[0][0].checked;
+      var bookcaseBool = d3.select("#bookcaseBool")._groups[0][0].checked;
 
       var internalBedBool = false;
       var internalClosetBool = false;
-      var internalDresserBool = false;
+      var internalSofaBool = false;
+      var internalLampBool = false;
+      var internalBookcaseBool = false;
 
       for (var i = 0; i < tiles.length; i++) {
         if (tiles[i].getAttribute("fill") == "#CB79F7") {
           internalBedBool = true; // BED
-        } else if (tiles[i].getAttribute("fill") == "#ECA025") {
+        }
+        else if (tiles[i].getAttribute("fill") == "#ECA025") {
           internalClosetBool = true; // CLOSET
-        } else if (tiles[i].getAttribute("fill") == "#F06086") {
-          internalDresserBool = true; // DRESSER
+        }
+        else if (tiles[i].getAttribute("fill") == "#F06086") {
+          internalSofaBool = true; // SOFA
+        }
+        else if (tiles[i].getAttribute("fill") == "#6D73C9") {
+          internalLampBool = true; // LAMP
+        }
+        else if (tiles[i].getAttribute("fill") == "#F0F051") {
+          internalBookcaseBool = true; // BOOKCASE
         }
       }
 
       if (svg.style("display") ==  "none") {
         alert("Generate a level first!");
-      } else if (lvlName._groups[0][0].value == "") {
+      }
+      else if (lvlName._groups[0][0].value == "") {
         alert("Don't forget to name your level!");
-      } else if (!bedBool && internalBedBool) {
+      }
+      else if (!bedBool && internalBedBool) {
         alert("Add a bed orientation!");
-      } else if (!closetBool && internalClosetBool) {
+      }
+      else if (!closetBool && internalClosetBool) {
         alert("Add a closet orientation!");
-      } else if (!dresserBool && internalDresserBool) {
-        alert("Add a dresser orientation!");
-      } else {
+      }
+      else if (!sofaBool && internalSofaBool) {
+        alert("Add a sofa orientation!");
+      }
+      else if (!lampBool && internalLampBool) {
+        alert("Add a lamp orientation!");
+      }
+      else if (!bookcaseBool && internalBookcaseBool) {
+        alert("Add a bookcase orientation!");
+      }
+      else {
 
         json = {
           "version": v,
@@ -312,12 +367,12 @@
           json.furniture["B"] = bed;
         }
 
-        // Check if dresser is checked
-        if(dresserBool) {
-          dresser = {
-            "rotation": Number(dresserOrientation)
+        // Check if sofa is checked
+        if(sofaBool) {
+          sofa = {
+            "rotation": Number(sofaOrientation)
           }
-          json.furniture["D"] = dresser;
+          json.furniture["S"] = sofa;
         }
 
         // Check if closet is checked
@@ -328,6 +383,22 @@
           json.furniture["C"] = closet;
         }
 
+        // Check if lamp is checked
+        if(lampBool) {
+          lamp = {
+            "rotation": Number(lampOrientation)
+          }
+          json.furniture["L"] = lamp;
+        }
+
+        // Check if lamp is checked
+        if(bookcaseBool) {
+          lamp = {
+            "rotation": Number(bookcaseOrientation)
+          }
+          json.furniture["K"] = lamp;
+        }
+
         var rowIterator = 0;
         var rowNumber = 0;
         var tileListIndex = 0;
@@ -336,20 +407,33 @@
           var elm;
           if (tiles[tileListIndex].getAttribute("fill") == "#59AEEB") {
             elm = "o"; // TILE
-          } else if (tiles[tileListIndex].getAttribute("fill") == "#000000") {
+          }
+          else if (tiles[tileListIndex].getAttribute("fill") == "#000000") {
             elm = "#"; // EMPTY
-          } else if (tiles[tileListIndex].getAttribute("fill") == "#E4EEF5") {
+          }
+          else if (tiles[tileListIndex].getAttribute("fill") == "#E4EEF5") {
             elm = "p"; // PLAYER SPAWN
-          } else if (tiles[tileListIndex].getAttribute("fill") == "#A9F5C5") {
+          }
+          else if (tiles[tileListIndex].getAttribute("fill") == "#A9F5C5") {
             elm = "x"; // INVADER SPAWN
-          } else if (tiles[tileListIndex].getAttribute("fill") == "#D32CDB") {
+          }
+          else if (tiles[tileListIndex].getAttribute("fill") == "#D32CDB") {
             elm = "B"; // BED
-          } else if (tiles[tileListIndex].getAttribute("fill") == "#CB79F7") {
+          }
+          else if (tiles[tileListIndex].getAttribute("fill") == "#CB79F7") {
             elm = "b"; // BED TILE
-          } else if (tiles[tileListIndex].getAttribute("fill") == "#ECA025") {
+          }
+          else if (tiles[tileListIndex].getAttribute("fill") == "#ECA025") {
             elm = "C"; // CLOSET
-          } else if (tiles[tileListIndex].getAttribute("fill") == "#F06086") {
-            elm = "D"; // DRESSER
+          }
+          else if (tiles[tileListIndex].getAttribute("fill") == "#F06086") {
+            elm = "S"; // SOFA
+          }
+          else if (tiles[tileListIndex].getAttribute("fill") == "#6D73C9") {
+            elm = "L"; // LAMP
+          }
+          else if (tiles[tileListIndex].getAttribute("fill") == "#F0F051") {
+            elm = "K"; // BOOKCASE
           }
           json.tiles.map.push(elm);
           tileListIndex += Number(h);

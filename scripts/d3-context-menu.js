@@ -39,9 +39,15 @@ d3.contextMenu = function(menu, openCallback) {
         }
         else if (i == 6) { // CLOSET
           elm.setAttribute("fill", "#ECA025");
-        } 
-        else if (i == 7) { // DRESSER
+        }
+        else if (i == 7) { // SOFA
           elm.setAttribute("fill", "#F06086");
+        }
+        else if (i == 8) { // LAMP
+          elm.setAttribute("fill", "#6D73C9");
+        }
+        else if (i == 9) { // BOOKCASE
+          elm.setAttribute("fill", "#F0F051");
         }
         d3.select(".d3-context-menu").style("display", "none");
       });
